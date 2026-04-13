@@ -9,9 +9,9 @@ jobs:
   terraform:
     runs-on: ubuntu-latest
     env:
-      INTERNAL_API_KEY: ${{ secrets.INTERNAL_API_KEY }}
-      PRINTFUL_API_KEY: ${{ secrets.PRINTFUL_API_KEY }}
-      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      TF_VAR_INTERNAL_API_KEY: ${{ secrets.INTERNAL_API_KEY }}
+      TF_VAR_PRINTFUL_API_KEY: ${{ secrets.PRINTFUL_API_KEY }}
+      TF_VAR_STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
