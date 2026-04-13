@@ -1,0 +1,5 @@
+registered_domain_name = "ushirtsa.com"
+website_bucket_name = "project-tfair-x0"
+visitor_images_bucket_name = "ushirtsa-designs-by-users-2026"
+printful_store_id = "17951501"
+stripe_public_key = "pk_live_51TJiyNFToW45AkQw4t68OTqyjppWXVdiSkZOEtqeAVxRv7Qxf3qAIyMjxym7grfZzSouRnt7AbXQBZGnDrfFniK500qSiWyX6r"

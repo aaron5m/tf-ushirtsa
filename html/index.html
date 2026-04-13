@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>U Shirts A</title>
+
+  <!-- ✅ Mobile fix -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: #f5f7fb;
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 520px;
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 22px;
+      text-align: center;
+    }
+
+    img {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 16px;
+    }
+
+    .price-box {
+      background: #111;
+      color: white;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 16px;
+      font-family: monospace;
+    }
+
+    .price-box div {
+      display: flex;
+      justify-content: space-between;
+      margin: 4px 0;
+      line-height: 24px;
+    }
+
+    .price-total {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      margin-top: 8px;
+      padding-top: 8px;
+      font-weight: bold;
+    }
+
+    select, input, #card-element {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+      background: #fafafa;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #555;
+      background: white;
+    }
+
+    .inline-field {
+      display: flex;
+      width: 100%;
+      margin-bottom: 10px;
+      align-items: stretch;
+      height: 40px;
+    }
+
+    .inline-field label {
+      display: flex;
+      align-items: center;
+      background: #111;
+      border: 1px solid #ddd;
+      border-right: none;
+      border-radius: 8px 0 0 8px;
+      color: #fafafa;
+      white-space: nowrap;
+      padding: 10px;
+      padding-left: 20px;
+      padding-right: 16px;
+      font-size: 14px;
+      height: 100%;
+    }
+
+    .inline-field select {
+      flex: 1;
+      border-radius: 0 8px 8px 0;
+      padding: 10px;
+      font-size: 14px;
+      height: 100%;
+
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #111;
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      background: #333;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    #status {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #444;
+      min-height: 18px;
+    }
+
+    @media (min-width: 600px) {
+      .container {
+        padding: 24px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- Stripe -->
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <!-- Image -->
+    <img src="shirt.png" alt="Shirt">
+
+    <!-- Price -->
+    <div class="price-box">
+      <div><span>$17.76</span><span>shirt</span></div>
+      <div><span>$2.50</span><span>shipping</span></div>
+      <div class="price-total"><span>$20.26</span><span>total</span></div>
+    </div>
+
+    <!-- Form -->
+    <div class="inline-field">
+      <label for="size">Click To Choose Size &rarr;</label>
+      <select id="size">
+        <option value="XS">XS</option>
+        <option value="S">S</option>
+        <option value="M">M</option>
+        <option value="L" selected>L</option>
+        <option value="XL">XL</option>
+        <option value="2XL">2XL</option>
+        <option value="3XL">3XL</option>
+      </select>
+    </div>
+
+    <input id="name" placeholder="Your Name" required>
+    <input id="address1" placeholder="Address Line 1" required>
+    <input id="address2" placeholder="Address Line 2 (optional)">
+    <input id="city" placeholder="City" required>
+    <input id="state" placeholder="State (e.g. CA)" required>
+    <input id="zip" placeholder="ZIP Code" required>
+    <input id="phone" placeholder="Phone" required>
+    <input id="email" placeholder="Email" required>
+
+    <!-- Card -->
+    <div id="card-element"></div>
+
+    <!-- Button -->
+    <button id="order-btn" onclick="submitOrder()" disabled>Place Order</button>
+
+    <p id="status"></p>
+  </div>
+
+  <script>
+    // STRIPE SCRIPT AND VALIDATION
+    const stripe = Stripe('${stripe_public_key}');
+    const elements = stripe.elements();
+    const card = elements.create("card");
+    card.mount("#card-element");
+    let cardComplete = false;
+
+    const requiredFields = [
+      "name",
+      "address1",
+      "city",
+      "state",
+      "zip",
+      "phone",
+      "email"
+    ];
+    function validateForm() {
+      const allFilled = requiredFields.every(id => {
+        const el = document.getElementById(id);
+        return el && el.value.trim() !== "";
+      });
+      document.getElementById("order-btn").disabled = !(allFilled && cardComplete);
+    }
+    requiredFields.forEach(id => {
+      document.getElementById(id).addEventListener("input", validateForm);
+    });
+    document.getElementById("size").addEventListener("change", validateForm);
+    card.on("change", function(event) {
+      cardComplete = event.complete;
+      validateForm();
+    });
+  </script>
+
+
+  <script>
+    // SUBMIT SCRIPT
+    const PAYMENT_LAMBDA_URL = "${PAYMENT_LAMBDA_URL}";
+
+    const variantMap = {
+        "XS": 24351,
+        "S": 24352,
+        "M": 24353,
+        "L": 24354,
+        "XL": 24355,
+        "2XL": 24356,
+        "3XL": 24357
+    };
+
+    async function submitOrder() {
+      const statusEl = document.getElementById("status");
+      statusEl.innerText = "Processing...";
+
+      const size = document.getElementById("size").value;
+
+      const orderPayload = {
+        recipient: {
+          name: document.getElementById("name").value,
+          address1: document.getElementById("address1").value,
+          address2: document.getElementById("address2").value,
+          city: document.getElementById("city").value,
+          state_code: document.getElementById("state").value,
+          country_code: "US",
+          zip: document.getElementById("zip").value,
+          phone: document.getElementById("phone").value,
+          email: document.getElementById("email").value
+        },
+        items: [
+          {
+            variant_id: variantMap[size],
+            quantity: 1,
+            files: [{ id: "972170815", placement: "front" }]
+          }
+        ]
+      };
+
+      try {
+        const piRes = await fetch(PAYMENT_LAMBDA_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "create-payment-intent",
+            recipient: orderPayload.recipient,
+            items: orderPayload.items
+          })
+        });
+
+        const { clientSecret } = await piRes.json();
+
+        const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: { card: card }
+        });
+
+        if (error) {
+          statusEl.innerText = error.message;
+          return;
+        }
+
+        const confirmRes = await fetch(PAYMENT_LAMBDA_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "confirm-order",
+            paymentIntentId: paymentIntent.id,
+            recipient: orderPayload.recipient,
+            items: orderPayload.items
+          })
+        });
+
+        const confirmData = await confirmRes.json();
+        statusEl.innerText = confirmData.message || "Order placed!";
+      } catch (err) {
+        statusEl.innerText = "Something went wrong.";
+      }
+    }
+  </script>
+
+</body>
+</html>
