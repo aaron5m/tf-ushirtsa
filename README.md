@@ -1,6 +1,6 @@
 ## Printful Serverless Storefront
 
-A high-performance, serverless e-commerce demo built with **Terraform** and **AWS Lambda**.
+A high-performance, serverless e-commerce store built with **Terraform** and **AWS Lambda**.
 
 ### Architecture
 * **Frontend:** CloudFront-distributed SPA.
